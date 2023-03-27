@@ -59,7 +59,7 @@ def process_put(db, myPath, input_data):
         return jsonify({"message": "Resource created successfully", "data": input_data}), 201
     # --------------------------------------------------------------------------------
     key = path[1]
-    p = '.'.join(path[1:])
+    p = '.'.join(path[1:])  #"yxj.aaa.bbb.ccc"
 
     try:
         result = collection.update_one({p:{"$exists": True}}, {"$set":{p:input_data}})
