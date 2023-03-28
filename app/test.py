@@ -9,4 +9,5 @@ def test():
     db = mongo.db
     db.test.insert_one({"message": "Hello, MongoDB!"})
     document = mongo.db.test.find_one({"message": "Hello, MongoDB!"})
-    return str(document)
+    # document = db.get_test.find_one({"yxj": {"$exists": True}},{'_id':0})
+    return document

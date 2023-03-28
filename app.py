@@ -14,7 +14,8 @@ def test_mongodb():
     mongo.db.test.insert_one({"message": "Hello, MongoDB!"})
 
     # Retrieve the document from the 'test' collection
-    document = mongo.db.test.find_one({"message": "Hello, MongoDB!"})
+    # document = mongo.db.test.find_one({"message": "Hello, MongoDB!"})
+    document = mongo.db.get_test.find_one({"yxj": {"$exists": True}},{'_id':0})
 
     # Return the document content as a string
     return str(document)

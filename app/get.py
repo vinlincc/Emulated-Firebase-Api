@@ -1,58 +1,156 @@
-from flask import Blueprint,request,jsonify
+import pymongo
+from flask import Blueprint, request, jsonify
 from .model import mongo
 from .put import check_path
+
 get_bp = Blueprint('get', __name__)
 
 
-# def findAll(documents,paths):
-#     documents_list = []
-#     if len(paths) != 0:
-#         last = paths.pop()
-#     for document in documents:
-#         if len(paths) >= 1:
-#             for path in paths:
-#                 document = document[path]
-#             for item in document.items():
-#                 if last == item[0]:
-#                     document = {item[0],[item[1]]}
-#                     break
-#                 else:
-#                     continue
-#         documents_list.append(str(document))
-#     return documents_list
-
-def findAll(documents,paths):
+def transferDocument(documents, paths):
     documents_list = []
-    if len(paths) <= 1:
+    if len(paths) < 1:
         for i in documents:
-             documents_list.append(str(i))
+            documents_list.append(i)
+    elif len(paths) == 1:
+        document = next(documents)[paths[0]]
+        documents_list.append(document)
     else:
-        last = paths.pop()
         document = next(documents)
         for path in paths:
             document = document[path]
-        if (len(document) != 1):
-            for item in document.items():
-                if item[0] == last:
-                    tmp = {}
-                    tmp[item[0]] = item[1]
-                    document = tmp
-                    documents_list.append(str(document))
-                    break
-                else:
-                    continue
-        else:
-            documents_list.append(str(document))
+        documents_list.append(document)
     return documents_list
 
-# def projection(columns):
-#     project_dict = {}
-#     project_dict[".".join(columns)] = 1
-#     project_dict["_id"] = 0
-#     return project_dict
+
+def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
+    if len(documents) == 0:
+        pass
+    elif len(documents) == 1:
+        pass
+    else:
+        if args_dict["orderBy"] == "\"$key\"":
+            if len(documents[0]) >= 2 or len(documents[0]) == 0:
+                pass
+            else:
+                documents = sorted(documents, key=lambda x: list(x.keys())[0])
+                if equalToFlag:
+                    try:
+                        tmp = [document for document in documents if
+                               list(document.keys())[0] == args_dict["equalTo"][1:-1]]
+                    except:
+                        tmp = [document for document in documents if list(document.keys())[0] == args_dict["equalTo"]]
+                    documents = tmp
+                elif startAtFlag:
+                    try:
+                        tmp = [document for document in documents if
+                               list(document.keys())[0] >= args_dict["startAt"][1:-1]]
+                    except:
+                        tmp = [document for document in documents if list(document.keys())[0] >= args_dict["startAt"]]
+                    documents = tmp
+                elif endAtFlag:
+                    try:
+                        tmp = [document for document in documents if
+                               list(document.keys())[0] == args_dict["endAt"][1:-1]]
+                    except:
+                        tmp = [document for document in documents if list(document.keys())[0] == args_dict["endAt"]]
+                    documents = tmp
+                else:
+                    pass
+        elif args_dict["orderBy"] == "\"$value\"":
+            if len(documents[0]) >= 2 or len(documents[0]) == 0:
+                pass
+            else:
+                if (isinstance(list(documents[0].values())[0], dict)):
+                    pass
+                else:
+                    documents = sorted(documents, key=lambda x: list(x.values())[0])
+                    if equalToFlag:
+                        try:
+                            tmp = [document for document in documents if
+                                   list(document.values())[0] == args_dict["equalTo"][1:-1]]
+                        except:
+                            tmp = [document for document in documents if
+                                   list(document.values())[0] == args_dict["equalTo"]]
+                        documents = tmp
+                    elif startAtFlag:
+                        try:
+                            tmp = [document for document in documents if
+                                   list(document.values())[0] >= args_dict["startAt"][1:-1]]
+                        except:
+                            tmp = [document for document in documents if
+                                   list(document.values())[0] >= args_dict["startAt"]]
+                        documents = tmp
+                    elif endAtFlag:
+                        try:
+                            tmp = [document for document in documents if
+                                   list(document.values())[0] == args_dict["endAt"][1:-1]]
+                        except:
+                            tmp = [document for document in documents if
+                                   list(document.values())[0] == args_dict["endAt"]]
+                        documents = tmp
+                    else:
+                        pass
+        else:
+            if (isinstance(list(documents[0].values())[0][args_dict["orderBy"][1:-1]], dict)):
+                pass
+            else:
+                try:
+                    documents = sorted(documents, key=lambda x: list(x.values())[0][args_dict["orderBy"][1:-1]])
+                except:
+                    documents = []
+                if equalToFlag:
+                    try:
+                        tmp = [document for document in documents if
+                               list(document.values())[0][args_dict["orderBy"][1:-1]] == args_dict["equalTo"][1:-1]]
+                    except:
+                        tmp = [document for document in documents if
+                               list(document.values())[0][args_dict["orderBy"][1:-1]] == args_dict["equalTo"]]
+                    documents = tmp
+                elif startAtFlag:
+                    try:
+                        tmp = [document for document in documents if
+                               list(document.values())[0][args_dict["orderBy"][1:-1]] >= args_dict["startAt"][1:-1]]
+                    except:
+                        tmp = [document for document in documents if
+                               list(document.values())[0][args_dict["orderBy"][1:-1]] >= args_dict["startAt"]]
+                    documents = tmp
+                elif endAtFlag:
+                    try:
+                        tmp = [document for document in documents if
+                               list(document.values())[0][args_dict["orderBy"][1:-1]] == args_dict["endAt"][1:-1]]
+                    except:
+                        tmp = [document for document in documents if
+                               list(document.values())[0][args_dict["orderBy"][1:-1]] == args_dict["endAt"]]
+                    documents = tmp
+                else:
+                    pass
+    return documents
 
 
-@get_bp.route('/.json', defaults={'myPath': ''},methods=['GET'])
+def findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equalToFlag, startAtFlag,
+                  endAtFlag, args_dict):
+    length = len(path)
+    if length == 1:
+        documents = db[path[0]].find({}, {'_id': 0})
+    elif length == 2:
+        documents = db[path[0]].find({path[1]: {"$exists": True}}, {'_id': 0})
+    else:
+        documents = db[path[0]].find({path[1]: {"$exists": True}}, {'_id': 0})
+    documents = transferDocument(documents, path[1:])
+    if orderByFlag:
+        documents = filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict)
+        if limitToLastFlag:
+            documents = documents[-int(args_dict["limitToLast"]):]
+        elif limitToFirstFlag:
+            documents = documents[0:int(args_dict["limitToFirst"])]
+        else:
+            documents = documents
+    else:
+        documents = documents
+    return documents
+
+
+@get_bp.route('/.json', defaults={'myPath': ''}, methods=['GET'])
 @get_bp.route('/<path:myPath>.json', methods=['GET'])
 def get(myPath):
     db = mongo.db
@@ -65,45 +163,9 @@ def get(myPath):
     orderByFlag = True if args_keys.__contains__("orderBy") else False
     limitToFirstFlag = True if args_keys.__contains__("limitToFirst") else False
     limitToLastFlag = True if args_keys.__contains__("limitToLast") else False
-    equalToFlag = True if args_keys.__contains__("equalToFirst") else False
-    startAtFlag = True if args_keys.__contains__("startAtFirst") else False
-    endAtFlag = True if args_keys.__contains__("endAtFirst") else False
-    if orderByFlag:
-        if equalToFlag:
-            if limitToFirstFlag:
-                pass
-            elif limitToLastFlag:
-                pass
-            else:
-                pass
-        elif startAtFlag:
-            if limitToFirstFlag:
-                pass
-            elif limitToLastFlag:
-                pass
-            else:
-                pass
-        elif endAtFlag:
-            if limitToFirstFlag:
-                pass
-            elif limitToLastFlag:
-                pass
-            else:
-                pass
-        elif limitToFirstFlag:
-            pass
-        elif limitToLastFlag:
-            pass
-        else:
-            pass
-    else:
-        length = len(path)
-        if length == 1:
-            documents = db[path[0]].find()
-        elif length == 2:
-            documents = db[path[0]].find({path[1]:{"$exists":True}})
-        else:
-            documents = db[path[0]].find({path[1]: {"$exists": True}})
-        documents = findAll(documents,path[1:])
+    equalToFlag = True if args_keys.__contains__("equalTo") else False
+    startAtFlag = True if args_keys.__contains__("startAt") else False
+    endAtFlag = True if args_keys.__contains__("endAt") else False
+    documents = findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equalToFlag, startAtFlag,
+                              endAtFlag, args_dict)
     return documents
-
