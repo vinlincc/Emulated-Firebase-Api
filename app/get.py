@@ -7,124 +7,131 @@ get_bp = Blueprint('get', __name__)
 
 
 def transferDocument(documents, paths):
-    documents_list = []
+    documents_dict = {}
     if len(paths) < 1:
         for i in documents:
-            documents_list.append(i)
+            documents_dict[list(i.keys())[0]] = list(i.values())[0]
     elif len(paths) == 1:
         document = next(documents)[paths[0]]
-        documents_list.append(document)
+        documents_dict = document
     else:
         document = next(documents)
         for path in paths:
             document = document[path]
-        documents_list.append(document)
-    return documents_list
+        documents_dict = document
+    return documents_dict
 
 
 def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
-    if len(documents) == 0:
-        pass
-    elif len(documents) == 1:
+    startIndex = 0
+    if isinstance(documents, str) or len(documents) < 1:
         pass
     else:
+        print(args_dict)
         if args_dict["orderBy"] == "\"$key\"":
-            if len(documents[0]) >= 2 or len(documents[0]) == 0:
-                pass
-            else:
-                documents = sorted(documents, key=lambda x: list(x.keys())[0])
-                if equalToFlag:
-                    try:
-                        tmp = [document for document in documents if
-                               list(document.keys())[0] == args_dict["equalTo"][1:-1]]
-                    except:
-                        tmp = [document for document in documents if list(document.keys())[0] == args_dict["equalTo"]]
-                    documents = tmp
-                elif startAtFlag:
-                    try:
-                        tmp = [document for document in documents if
-                               list(document.keys())[0] >= args_dict["startAt"][1:-1]]
-                    except:
-                        tmp = [document for document in documents if list(document.keys())[0] >= args_dict["startAt"]]
-                    documents = tmp
-                elif endAtFlag:
-                    try:
-                        tmp = [document for document in documents if
-                               list(document.keys())[0] == args_dict["endAt"][1:-1]]
-                    except:
-                        tmp = [document for document in documents if list(document.keys())[0] == args_dict["endAt"]]
-                    documents = tmp
-                else:
-                    pass
-        elif args_dict["orderBy"] == "\"$value\"":
-            if len(documents[0]) >= 2 or len(documents[0]) == 0:
-                pass
-            else:
-                if (isinstance(list(documents[0].values())[0], dict)):
-                    pass
-                else:
-                    documents = sorted(documents, key=lambda x: list(x.values())[0])
-                    if equalToFlag:
-                        try:
-                            tmp = [document for document in documents if
-                                   list(document.values())[0] == args_dict["equalTo"][1:-1]]
-                        except:
-                            tmp = [document for document in documents if
-                                   list(document.values())[0] == args_dict["equalTo"]]
-                        documents = tmp
-                    elif startAtFlag:
-                        try:
-                            tmp = [document for document in documents if
-                                   list(document.values())[0] >= args_dict["startAt"][1:-1]]
-                        except:
-                            tmp = [document for document in documents if
-                                   list(document.values())[0] >= args_dict["startAt"]]
-                        documents = tmp
-                    elif endAtFlag:
-                        try:
-                            tmp = [document for document in documents if
-                                   list(document.values())[0] == args_dict["endAt"][1:-1]]
-                        except:
-                            tmp = [document for document in documents if
-                                   list(document.values())[0] == args_dict["endAt"]]
-                        documents = tmp
-                    else:
-                        pass
-        else:
-            if (isinstance(list(documents[0].values())[0][args_dict["orderBy"][1:-1]], dict)):
-                pass
-            else:
+            documents = sorted(documents.items())
+            if equalToFlag:
                 try:
-                    documents = sorted(documents, key=lambda x: list(x.values())[0][args_dict["orderBy"][1:-1]])
+                    tmp = [document for document in documents if
+                           document[0] == args_dict["equalTo"][1:-1]]
                 except:
-                    documents = []
-                if equalToFlag:
-                    try:
-                        tmp = [document for document in documents if
-                               list(document.values())[0][args_dict["orderBy"][1:-1]] == args_dict["equalTo"][1:-1]]
-                    except:
-                        tmp = [document for document in documents if
-                               list(document.values())[0][args_dict["orderBy"][1:-1]] == args_dict["equalTo"]]
-                    documents = tmp
-                elif startAtFlag:
-                    try:
-                        tmp = [document for document in documents if
-                               list(document.values())[0][args_dict["orderBy"][1:-1]] >= args_dict["startAt"][1:-1]]
-                    except:
-                        tmp = [document for document in documents if
-                               list(document.values())[0][args_dict["orderBy"][1:-1]] >= args_dict["startAt"]]
-                    documents = tmp
-                elif endAtFlag:
-                    try:
-                        tmp = [document for document in documents if
-                               list(document.values())[0][args_dict["orderBy"][1:-1]] == args_dict["endAt"][1:-1]]
-                    except:
-                        tmp = [document for document in documents if
-                               list(document.values())[0][args_dict["orderBy"][1:-1]] == args_dict["endAt"]]
-                    documents = tmp
+                    tmp = [document for document in documents if document[0] == args_dict["equalTo"]]
+                documents = tmp
+            elif startAtFlag:
+                try:
+                    tmp = [document for document in documents if
+                           document[0] >= args_dict["startAt"][1:-1]]
+                except:
+                    tmp = [document for document in documents if document[0] >= args_dict["startAt"]]
+                documents = tmp
+            elif endAtFlag:
+                try:
+                    tmp = [document for document in documents if
+                           document[0] <= args_dict["endAt"][1:-1]]
+                except:
+                    tmp = [document for document in documents if document[0] <= args_dict["endAt"]]
+                documents = tmp
+            else:
+                pass
+        elif args_dict["orderBy"] == "\"$value\"":
+            can_sort = []
+            non_sort = []
+            for document in documents.items():
+                if isinstance(document[1], dict):
+                    non_sort.append((document[0], document[1]))
                 else:
-                    pass
-    return documents
+                    can_sort.append((document[0], document[1]))
+            can_sort = sorted(can_sort, key=lambda x: x[1])
+            documents = can_sort
+            startIndex = len(non_sort)
+            if equalToFlag:
+                try:
+                    tmp = [document for document in documents if
+                           document[1] == args_dict["equalTo"][1:-1]]
+                except:
+                    tmp = [document for document in documents if
+                           document[1] == int(args_dict["equalTo"])]
+                documents = tmp
+            elif startAtFlag:
+                try:
+                    tmp = [document for document in documents if
+                           document[1] >= args_dict["startAt"][1:-1]]
+                except:
+                    tmp = [document for document in documents if
+                           document[1] >= int(args_dict["startAt"])]
+                documents = tmp
+            elif endAtFlag:
+                try:
+                    tmp = [document for document in documents if
+                           document[1] <= args_dict["endAt"][1:-1]]
+                except:
+                    tmp = [document for document in documents if
+                           document[1] <= int(args_dict["endAt"])]
+                documents = tmp
+            else:
+                pass
+            non_sort.extend(documents)
+            documents = non_sort
+        else:
+            can_sort = []
+            non_sort = []
+            for document in documents.items():
+                if isinstance(document[1][args_dict["orderBy"][1:-1]], dict):
+                    non_sort.append((document[0], document[1]))
+                else:
+                    can_sort.append((document[0], document[1]))
+            can_sort = sorted(can_sort, key=lambda x: x[1][args_dict["orderBy"][1:-1]])
+            documents = can_sort
+            startIndex = len(non_sort)
+            if equalToFlag:
+                try:
+                    tmp = [document for document in documents if
+                           document[1][args_dict["orderBy"][1:-1]] == args_dict["equalTo"][1:-1]]
+                except:
+                    tmp = [document for document in documents if
+                           document[1][args_dict["orderBy"][1:-1]] == int(args_dict["equalTo"])]
+                documents = tmp
+            elif startAtFlag:
+                try:
+                    tmp = [document for document in documents if
+                           document[1][args_dict["orderBy"][1:-1]] >= args_dict["startAt"][1:-1]]
+                except:
+                    tmp = [document for document in documents if
+                           document[1][args_dict["orderBy"][1:-1]] >= int(args_dict["startAt"])]
+                documents = tmp
+            elif endAtFlag:
+                try:
+                    tmp = [document for document in documents if
+                           document[1][args_dict["orderBy"][1:-1]] <= args_dict["endAt"][1:-1]]
+                except:
+                    tmp = [document for document in documents if
+                           document[1][args_dict["orderBy"][1:-1]] <= int(args_dict["endAt"])]
+                documents = tmp
+            else:
+                pass
+            non_sort.extend(documents)
+            documents = non_sort
+    return documents, startIndex
 
 
 def findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equalToFlag, startAtFlag,
@@ -138,15 +145,22 @@ def findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equa
         documents = db[path[0]].find({path[1]: {"$exists": True}}, {'_id': 0})
     documents = transferDocument(documents, path[1:])
     if orderByFlag:
-        documents = filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict)
+        filter = filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict)
+        documents = filter[0]
+        startIndex = filter[1]
         if limitToLastFlag:
-            documents = documents[-int(args_dict["limitToLast"]):]
+            documents = documents[max(-int(args_dict["limitToLast"]), -(len(documents) - startIndex)):]
         elif limitToFirstFlag:
-            documents = documents[0:int(args_dict["limitToFirst"])]
+            documents = documents[startIndex:int(args_dict["limitToFirst"]) + startIndex]
         else:
-            documents = documents
+            pass
+        documents = dict(documents)
     else:
-        documents = documents
+        pass
+    if isinstance(documents, str):
+        pass
+    elif isinstance(documents, int):
+        documents = str(documents)
     return documents
 
 
