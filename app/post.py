@@ -21,4 +21,15 @@ def post(myPath):
         response_data["name"] = post_id
         return jsonify(response_data), status_code
     
-
+@post_bp.route('/.create_collection/<collection_name>', methods=['POST'])
+def create_collection(collection_name):
+    db = mongo.db
+    collection = None
+    try:
+        collection = db.create_collection(collection_name)
+    except Exception as e:
+        return jsonify({"message": f"{e}"}), 400
+    if collection is not None:
+        return jsonify({"message": f"Collection '{collection_name}' created successfully"}), 201
+    else:
+        return jsonify({"message": f"Failed to create collection '{collection_name}'"}), 400
