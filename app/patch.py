@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from .model import mongo
 from pymongo.errors import WriteError
 import json
@@ -47,7 +48,10 @@ def process_patch(db, myPath, input_data):
 
 @patch_bp.route('/.json', defaults={'myPath': ''},methods=['PATCH'] )
 @patch_bp.route('/<path:myPath>.json', methods=['PATCH'])
+@jwt_required()
 def patch(myPath):
-    db = mongo.db
+    user = get_jwt_identity()
+    user_database = f"db_{user}"
+    db = mongo.cx[user_database]
     input_data = request.get_json(force=True)
     return process_patch(db, myPath, input_data)

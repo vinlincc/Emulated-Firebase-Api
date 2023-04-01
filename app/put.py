@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from pymongo.errors import WriteError
 from .model import mongo
 import json
@@ -78,7 +79,10 @@ def process_put(db, myPath, input_data):
 
 @put_bp.route('/.json', defaults={'myPath': ''},methods=['PUT'] )
 @put_bp.route('/<path:myPath>.json', methods=['PUT'])
+@jwt_required()
 def put(myPath):
-    db = mongo.db
+    user = get_jwt_identity()
+    user_database = f"db_{user}"
+    db = mongo.cx[user_database]
     input_data = request.get_json(force=True)
     return process_put(db, myPath, input_data)
