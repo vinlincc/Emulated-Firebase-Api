@@ -2,6 +2,7 @@ import pymongo
 from flask import Blueprint, request, jsonify
 from .model import mongo
 from .put import check_path
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 get_bp = Blueprint('get', __name__)
 
@@ -166,8 +167,12 @@ def findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equa
 
 @get_bp.route('/.json', defaults={'myPath': ''}, methods=['GET'])
 @get_bp.route('/<path:myPath>.json', methods=['GET'])
+@jwt_required()
 def get(myPath):
-    db = mongo.db
+    user = get_jwt_identity()
+    user_database = f"db_{user}"
+    db = mongo.cx[user_database]
+    # db = mongo.db
     path = myPath.split('/')
     path = check_path(path)
     if path is None: return jsonify({"message": "invalid collection"}), 400
