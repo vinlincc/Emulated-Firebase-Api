@@ -2,6 +2,7 @@ import bson.json_util
 from flask import Blueprint, jsonify
 from .model import mongo
 from pymongo.errors import WriteError
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 delete_bp = Blueprint('delete', __name__)
 
@@ -100,6 +101,10 @@ def delete_process(db, myPath):
 
 @delete_bp.route('/.json', defaults={'myPath': ''},methods=['DELETE'] )
 @delete_bp.route('/<path:myPath>.json', methods=['DELETE'])
+@jwt_required()
 def delete(myPath):
-    db = mongo.db
+    user = get_jwt_identity()
+    user_database = f"db_{user}"
+    db = mongo.cx[user_database]
+    #db = mongo.db
     return delete_process(db, myPath)
