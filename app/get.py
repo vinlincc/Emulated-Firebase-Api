@@ -25,7 +25,7 @@ def transferDocument(documents, paths):
             try:
                 document = document[path]
             except:
-                return {}
+                return jsonify({"message": "none data"}), 400
         documents_dict = document
     return documents_dict
 
