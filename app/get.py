@@ -18,6 +18,8 @@ def transferDocument(documents, paths):
             documents_dict[list(i.keys())[0]] = list(i.values())[0]
     elif len(paths) == 1:
         document = next(documents)[paths[0]]
+        if document == {}:
+            return jsonify({"message": "none data"}), 400
         documents_dict = document
     else:
         document = next(documents)
@@ -51,6 +53,12 @@ def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
                            document[0] >= args_dict["startAt"][1:-1]]
                 except:
                     tmp = [document for document in documents if document[0] >= args_dict["startAt"]]
+                if endAtFlag:
+                    try:
+                        tmp = [document for document in tmp if
+                               document[0] <= args_dict["endAt"][1:-1]]
+                    except:
+                        tmp = [document for document in tmp if document[0] <= args_dict["endAt"]]
                 documents = tmp
             elif endAtFlag:
                 try:
@@ -87,6 +95,13 @@ def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
                 except:
                     tmp = [document for document in documents if
                            document[1] >= int(args_dict["startAt"])]
+                if endAtFlag:
+                    try:
+                        tmp = [document for document in tmp if
+                               document[1] <= args_dict["endAt"][1:-1]]
+                    except:
+                        tmp = [document for document in tmp if
+                               document[1] <= int(args_dict["endAt"])]
                 documents = tmp
             elif endAtFlag:
                 try:
@@ -126,6 +141,13 @@ def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
                 except:
                     tmp = [document for document in documents if
                            document[1][args_dict["orderBy"][1:-1]] >= int(args_dict["startAt"])]
+                if endAtFlag:
+                    try:
+                        tmp = [document for document in tmp if
+                               document[1][args_dict["orderBy"][1:-1]] <= args_dict["endAt"][1:-1]]
+                    except:
+                        tmp = [document for document in tmp if
+                               document[1][args_dict["orderBy"][1:-1]] <= int(args_dict["endAt"])]
                 documents = tmp
             elif endAtFlag:
                 try:
@@ -157,15 +179,19 @@ def findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equa
         documents = filter[0]
         startIndex = filter[1]
         if limitToLastFlag:
+            if args_dict["limitToLast"].count(".") == 1 or int(args_dict["limitToLast"]) < 0:
+                return jsonify({"message": "number should be positive integer"}), 400
             documents = documents[max(-int(args_dict["limitToLast"]), -(len(documents) - startIndex)):]
         elif limitToFirstFlag:
+            if args_dict["limitToFirst"].count(".") == 1 or int(args_dict["limitToFirst"]) < 0:
+                return jsonify({"message": "number should be positive integer"}), 400
             documents = documents[startIndex:int(args_dict["limitToFirst"]) + startIndex]
         else:
             pass
         documents = dict(documents)
     else:
         if limitToLastFlag or limitToFirstFlag or equalToFlag or startAtFlag or endAtFlag:
-            documents = {}
+            return jsonify({"message": "filter should not been done without orderBy operation"}), 400
         pass
     if isinstance(documents, str):
         pass
