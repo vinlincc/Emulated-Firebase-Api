@@ -37,35 +37,34 @@ def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
     if isinstance(documents, str) or len(documents) < 1:
         pass
     else:
-        print(args_dict)
         if args_dict["orderBy"] == "\"$key\"":
             documents = sorted(documents.items())
             if equalToFlag:
-                try:
+                if args_dict["equalTo"].isdigit():
+                    tmp = [document for document in documents if document[0] == int(args_dict["equalTo"])]
+                else:
                     tmp = [document for document in documents if
                            document[0] == args_dict["equalTo"][1:-1]]
-                except:
-                    tmp = [document for document in documents if document[0] == args_dict["equalTo"]]
                 documents = tmp
             elif startAtFlag:
-                try:
+                if args_dict["startAt"].isdigit():
+                    tmp = [document for document in documents if document[0] >= int(args_dict["startAt"])]
+                else:
                     tmp = [document for document in documents if
                            document[0] >= args_dict["startAt"][1:-1]]
-                except:
-                    tmp = [document for document in documents if document[0] >= args_dict["startAt"]]
                 if endAtFlag:
-                    try:
+                    if args_dict["endAt"].isdigit():
+                        tmp = [document for document in tmp if document[0] <= int(args_dict["endAt"])]
+                    else:
                         tmp = [document for document in tmp if
                                document[0] <= args_dict["endAt"][1:-1]]
-                    except:
-                        tmp = [document for document in tmp if document[0] <= args_dict["endAt"]]
                 documents = tmp
             elif endAtFlag:
-                try:
+                if args_dict["endAt"].isdigit():
+                    tmp = [document for document in documents if document[0] <= int(args_dict["endAt"])]
+                else:
                     tmp = [document for document in documents if
                            document[0] <= args_dict["endAt"][1:-1]]
-                except:
-                    tmp = [document for document in documents if document[0] <= args_dict["endAt"]]
                 documents = tmp
             else:
                 pass
@@ -81,35 +80,35 @@ def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
             documents = can_sort
             startIndex = len(non_sort)
             if equalToFlag:
-                try:
-                    tmp = [document for document in documents if
-                           document[1] == args_dict["equalTo"][1:-1]]
-                except:
+                if args_dict["equalTo"].isdigit():
                     tmp = [document for document in documents if
                            document[1] == int(args_dict["equalTo"])]
+                else:
+                    tmp = [document for document in documents if
+                           document[1] == args_dict["equalTo"][1:-1]]
                 documents = tmp
             elif startAtFlag:
-                try:
-                    tmp = [document for document in documents if
-                           document[1] >= args_dict["startAt"][1:-1]]
-                except:
+                if args_dict["startAt"].isdigit():
                     tmp = [document for document in documents if
                            document[1] >= int(args_dict["startAt"])]
+                else:
+                    tmp = [document for document in documents if
+                           document[1] >= args_dict["startAt"][1:-1]]
                 if endAtFlag:
-                    try:
-                        tmp = [document for document in tmp if
-                               document[1] <= args_dict["endAt"][1:-1]]
-                    except:
+                    if args_dict["endAt"].isdigit():
                         tmp = [document for document in tmp if
                                document[1] <= int(args_dict["endAt"])]
+                    else:
+                        tmp = [document for document in tmp if
+                               document[1] <= args_dict["endAt"][1:-1]]
                 documents = tmp
             elif endAtFlag:
-                try:
-                    tmp = [document for document in documents if
-                           document[1] <= args_dict["endAt"][1:-1]]
-                except:
+                if args_dict["endAt"].isdigit():
                     tmp = [document for document in documents if
                            document[1] <= int(args_dict["endAt"])]
+                else:
+                    tmp = [document for document in documents if
+                           document[1] <= args_dict["endAt"][1:-1]]
                 documents = tmp
             else:
                 pass
@@ -119,43 +118,46 @@ def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
             can_sort = []
             non_sort = []
             for document in documents.items():
-                if isinstance(document[1][args_dict["orderBy"][1:-1]], dict):
+                try:
+                    if isinstance(document[1][args_dict["orderBy"][1:-1]], dict):
+                        non_sort.append((document[0], document[1]))
+                    else:
+                        can_sort.append((document[0], document[1]))
+                except:
                     non_sort.append((document[0], document[1]))
-                else:
-                    can_sort.append((document[0], document[1]))
             can_sort = sorted(can_sort, key=lambda x: x[1][args_dict["orderBy"][1:-1]])
             documents = can_sort
             startIndex = len(non_sort)
             if equalToFlag:
-                try:
-                    tmp = [document for document in documents if
-                           document[1][args_dict["orderBy"][1:-1]] == args_dict["equalTo"][1:-1]]
-                except:
+                if args_dict["equalTo"].isdigit():
                     tmp = [document for document in documents if
                            document[1][args_dict["orderBy"][1:-1]] == int(args_dict["equalTo"])]
+                else:
+                    tmp = [document for document in documents if
+                           document[1][args_dict["orderBy"][1:-1]] == args_dict["equalTo"][1:-1]]
                 documents = tmp
             elif startAtFlag:
-                try:
-                    tmp = [document for document in documents if
-                           document[1][args_dict["orderBy"][1:-1]] >= args_dict["startAt"][1:-1]]
-                except:
+                if args_dict["startAt"].isdigit():
                     tmp = [document for document in documents if
                            document[1][args_dict["orderBy"][1:-1]] >= int(args_dict["startAt"])]
+                else:
+                    tmp = [document for document in documents if
+                           document[1][args_dict["orderBy"][1:-1]] >= args_dict["startAt"][1:-1]]
                 if endAtFlag:
-                    try:
-                        tmp = [document for document in tmp if
-                               document[1][args_dict["orderBy"][1:-1]] <= args_dict["endAt"][1:-1]]
-                    except:
+                    if args_dict["endAt"].isdigit():
                         tmp = [document for document in tmp if
                                document[1][args_dict["orderBy"][1:-1]] <= int(args_dict["endAt"])]
+                    else:
+                        tmp = [document for document in tmp if
+                               document[1][args_dict["orderBy"][1:-1]] <= args_dict["endAt"][1:-1]]
                 documents = tmp
             elif endAtFlag:
-                try:
-                    tmp = [document for document in documents if
-                           document[1][args_dict["orderBy"][1:-1]] <= args_dict["endAt"][1:-1]]
-                except:
+                if args_dict["endAt"].isdigit():
                     tmp = [document for document in documents if
                            document[1][args_dict["orderBy"][1:-1]] <= int(args_dict["endAt"])]
+                else:
+                    tmp = [document for document in documents if
+                           document[1][args_dict["orderBy"][1:-1]] <= args_dict["endAt"][1:-1]]
                 documents = tmp
             else:
                 pass
