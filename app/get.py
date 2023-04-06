@@ -22,7 +22,10 @@ def transferDocument(documents, paths):
     else:
         document = next(documents)
         for path in paths:
-            document = document[path]
+            try:
+                document = document[path]
+            except:
+                return {}
         documents_dict = document
     return documents_dict
 
