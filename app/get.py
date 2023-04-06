@@ -161,6 +161,8 @@ def findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equa
             pass
         documents = dict(documents)
     else:
+        if limitToLastFlag or limitToFirstFlag or equalToFlag or startAtFlag or endAtFlag:
+            documents = {}
         pass
     if isinstance(documents, str):
         pass
