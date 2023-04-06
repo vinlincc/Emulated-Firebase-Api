@@ -63,7 +63,6 @@ def delete_process(db, myPath):
         p = '.'.join(path[1:])
         result = collection.find_one({p: {"$exists": True}})
 
-
         #if the path is wrong
         if result is None:
             return jsonify({"message": f"The element is not found, wrong path"}), 400
