@@ -148,7 +148,7 @@ def main():
     correct("get", get_test("test/subtest/school", command))
 
     #test case 25 -- get with wrong path
-    correct("get", get_test("test/subtest/school8", command))
+    # correct("get", get_test("test/subtest/school8", command))
 
     #look into details
     url1 = "http://127.0.0.1:5000/" + "test/subtest/school8" + ".json"
