@@ -3,12 +3,16 @@ from flask import Blueprint, request, jsonify
 from .model import mongo
 from .put import check_path
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import copy
 
 get_bp = Blueprint('get', __name__)
 
 
 def transferDocument(documents, paths):
     documents_dict = {}
+    documents_copy = copy.deepcopy(documents)
+    if (len(list(documents_copy))) == 0:
+        return documents_dict
     if len(paths) < 1:
         for i in documents:
             documents_dict[list(i.keys())[0]] = list(i.values())[0]

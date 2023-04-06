@@ -96,9 +96,6 @@ def delete_process(db, myPath):
 
 
 
-
-
-
 @delete_bp.route('/.json', defaults={'myPath': ''},methods=['DELETE'] )
 @delete_bp.route('/<path:myPath>.json', methods=['DELETE'])
 @jwt_required()
