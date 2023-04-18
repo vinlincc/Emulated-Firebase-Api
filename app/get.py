@@ -32,6 +32,20 @@ def transferDocument(documents, paths):
     return documents_dict
 
 
+def isCanSort(document,order_list):
+    document = document[1]
+    for i in order_list:
+        try:
+            document = document[i]
+        except:
+            return False
+    return False if isinstance(document, dict) else True
+
+def sortFunc(document,order_list):
+    document = document[1]
+    for i in order_list:
+        document = document[i]
+    return document
 def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
     startIndex = 0
     if isinstance(documents, str) or len(documents) < 1:
@@ -68,6 +82,7 @@ def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
                 documents = tmp
             else:
                 pass
+            print(documents)
         elif args_dict["orderBy"] == "\"$value\"":
             can_sort = []
             non_sort = []
@@ -117,53 +132,72 @@ def filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict):
         else:
             can_sort = []
             non_sort = []
+            order_list = args_dict["orderBy"][1:-1].split("/")
             for document in documents.items():
-                try:
-                    if isinstance(document[1][args_dict["orderBy"][1:-1]], dict):
-                        non_sort.append((document[0], document[1]))
-                    else:
-                        can_sort.append((document[0], document[1]))
-                except:
+                if isCanSort(document,order_list):
+                    can_sort.append((document[0], document[1]))
+                else:
                     non_sort.append((document[0], document[1]))
-            can_sort = sorted(can_sort, key=lambda x: x[1][args_dict["orderBy"][1:-1]])
+            can_sort = sorted(can_sort, key=lambda x: sortFunc(x,order_list))
             documents = can_sort
             startIndex = len(non_sort)
             if equalToFlag:
                 if args_dict["equalTo"].isdigit():
                     tmp = [document for document in documents if
-                           document[1][args_dict["orderBy"][1:-1]] == int(args_dict["equalTo"])]
+                           sortFunc(document,order_list) == int(args_dict["equalTo"])]
                 else:
                     tmp = [document for document in documents if
-                           document[1][args_dict["orderBy"][1:-1]] == args_dict["equalTo"][1:-1]]
+                           sortFunc(document, order_list) == args_dict["equalTo"][1:-1]]
                 documents = tmp
             elif startAtFlag:
                 if args_dict["startAt"].isdigit():
                     tmp = [document for document in documents if
-                           document[1][args_dict["orderBy"][1:-1]] >= int(args_dict["startAt"])]
+                           sortFunc(document,order_list) >= int(args_dict["startAt"])]
                 else:
                     tmp = [document for document in documents if
-                           document[1][args_dict["orderBy"][1:-1]] >= args_dict["startAt"][1:-1]]
+                           sortFunc(document,order_list) >= args_dict["startAt"][1:-1]]
                 if endAtFlag:
                     if args_dict["endAt"].isdigit():
                         tmp = [document for document in tmp if
-                               document[1][args_dict["orderBy"][1:-1]] <= int(args_dict["endAt"])]
+                               sortFunc(document,order_list) <= int(args_dict["endAt"])]
                     else:
                         tmp = [document for document in tmp if
-                               document[1][args_dict["orderBy"][1:-1]] <= args_dict["endAt"][1:-1]]
+                               sortFunc(document,order_list) <= args_dict["endAt"][1:-1]]
                 documents = tmp
             elif endAtFlag:
                 if args_dict["endAt"].isdigit():
                     tmp = [document for document in documents if
-                           document[1][args_dict["orderBy"][1:-1]] <= int(args_dict["endAt"])]
+                           sortFunc(document,order_list) <= int(args_dict["endAt"])]
                 else:
                     tmp = [document for document in documents if
-                           document[1][args_dict["orderBy"][1:-1]] <= args_dict["endAt"][1:-1]]
+                           sortFunc(document,order_list) <= args_dict["endAt"][1:-1]]
                 documents = tmp
             else:
                 pass
             non_sort.extend(documents)
             documents = non_sort
     return documents, startIndex
+
+
+def isHasIndex(args_dict, db, path):
+    orderByField = args_dict["orderBy"]
+    if orderByField.isdigit():
+        pass
+    else:
+        orderByField = orderByField[1:-1]
+    if orderByField == "$value":
+        orderByField = "/".join(path[2:]) + "/$value"
+    indexs = db["index"].find({path[0]: {"$exists": True}})
+    indexs = next(indexs)[path[0]]
+    print(indexs)
+    print(orderByField)
+    if orderByField == "$key":
+        return True
+    else:
+        if orderByField in indexs:
+            return True
+        else:
+            return False
 
 
 def findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equalToFlag, startAtFlag,
@@ -177,19 +211,22 @@ def findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equa
         documents = db[path[0]].find({path[1]: {"$exists": True}}, {'_id': 0})
     documents = transferDocument(documents, path[1:])
     if orderByFlag:
-        filter = filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict)
-        documents = filter[0]
-        startIndex = filter[1]
-        if limitToLastFlag:
-            if args_dict["limitToLast"].count(".") == 1 or int(args_dict["limitToLast"]) < 0:
-                return jsonify({"message": "number should be positive integer"}), 400
-            documents = documents[max(-int(args_dict["limitToLast"]), -(len(documents) - startIndex)):]
-        elif limitToFirstFlag:
-            if args_dict["limitToFirst"].count(".") == 1 or int(args_dict["limitToFirst"]) < 0:
-                return jsonify({"message": "number should be positive integer"}), 400
-            documents = documents[startIndex:int(args_dict["limitToFirst"]) + startIndex]
+        if isHasIndex(args_dict, db, path):
+            filter = filterDocuments(documents, equalToFlag, startAtFlag, endAtFlag, args_dict)
+            documents = filter[0]
+            startIndex = filter[1]
+            if limitToLastFlag:
+                if args_dict["limitToLast"].count(".") == 1 or int(args_dict["limitToLast"]) < 0:
+                    return jsonify({"message": "number should be positive integer"}), 400
+                documents = documents[max(-int(args_dict["limitToLast"]), -(len(documents) - startIndex)):]
+            elif limitToFirstFlag:
+                if args_dict["limitToFirst"].count(".") == 1 or int(args_dict["limitToFirst"]) < 0:
+                    return jsonify({"message": "number should be positive integer"}), 400
+                documents = documents[startIndex:int(args_dict["limitToFirst"]) + startIndex]
+            else:
+                pass
         else:
-            pass
+            return jsonify({"message": "This field has no index, please create index first"}), 400
         documents = dict(documents)
     else:
         if limitToLastFlag or limitToFirstFlag or equalToFlag or startAtFlag or endAtFlag:
@@ -209,7 +246,6 @@ def get(myPath):
     user = get_jwt_identity()
     user_database = f"db_{user}"
     db = mongo.cx[user_database]
-    # db = mongo.db
     path = myPath.split('/')
     path = check_path(path)
     if path is None: return jsonify({"message": "invalid collection"}), 400
@@ -224,4 +260,5 @@ def get(myPath):
     endAtFlag = True if args_keys.__contains__("endAt") else False
     documents = findDocuments(db, path, orderByFlag, limitToFirstFlag, limitToLastFlag, equalToFlag, startAtFlag,
                               endAtFlag, args_dict)
+    print(documents)
     return documents
