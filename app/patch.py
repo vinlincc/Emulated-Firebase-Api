@@ -15,7 +15,7 @@ def process_patch(db, myPath, input_data):
     input_data = input_data_transform(input_data)
     path = myPath.split('/')
     path = check_path(path)
-    if path is None: return jsonify({"message": "invalid collection"}), 400
+    if path == []: return jsonify({"message": "invalid collection"}), 400
     if path[0] not in db.list_collection_names(): return jsonify({"message": "invalid collection"}), 400
     collection = db[path[0]]
     # --------------------------------------------------------------------------------

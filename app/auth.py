@@ -22,7 +22,9 @@ def register():
 
     hashed_password = generate_password_hash(password)
     admindb.users.insert_one({"username": username, "password": hashed_password})
-
+    user_database = f"db_{username}"
+    db = mongo.cx[user_database]
+    db.create_collection("index")
     return jsonify({"result": "User created"}), 201
 
 @auth_bp.route('/.login', methods=['POST'])
