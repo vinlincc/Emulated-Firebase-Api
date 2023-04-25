@@ -149,7 +149,7 @@ def main():
     #data = {"author": "sdd","title": "dwg","content": "abc","create_time": time1}
     #correct("post", patch_test(file_name, json_data))
     json_data = json.dumps(data)
-    file_name = "test"
+    file_name = "Order"
 
     correct("post", post_test(file_name, json_data))
 
@@ -189,7 +189,10 @@ def main():
 
     url2 = "http://127.0.0.1:5000/Email.json"
     email = "louxiaomax@gmailcom"
-    requests.get()
+
+    url6 = "http://127.0.0.1:5000/Order.json?orderBy='3/create_time'&limitToFirst=1000"
+    res=requests.get(url6, headers=headers)
+    print(res.status_code == 500)
     # email = "llxxo@utlo"
     # code = "sdwja"
     # data = {email:code}
