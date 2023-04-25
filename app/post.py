@@ -53,9 +53,11 @@ def create_index(collection_name, myPath):
     user = get_jwt_identity()
     user_database = f"db_{user}"
     db = mongo.cx[user_database]
+    by_value = request.args.get('byValue', default=None, type=int)
 
     path = myPath.split('/')
     path = check_path(path)
+
     if collection_name not in db.list_collection_names(): return jsonify({"message": "invalid collection"}), 400
     collection = db[collection_name]
     index = None
@@ -63,17 +65,24 @@ def create_index(collection_name, myPath):
         if path != []: 
             index = collection.create_index('.'.join(path))
     except Exception as e:
-        return jsonify({"message": f"{e}"}), 400
+        # return jsonify({"message": f"{e}"}), 400
+        pass
 
-    if index is not None or path == []:
-        if path == []: path.append("$value")
-        db['index'].update_one(
-            {collection_name:{"$exists":True}},
-            {"$push":{f"{collection_name}":"/".join(path)}}
-        ) # add the path into and array 
-        return jsonify({"message": f"Index '{'/'.join(path)}' created successfully"}), 201
-    else:
-        return jsonify({"message": f"Failed to create the index"}), 400
+    if by_value: path.append("$value")
+    db['index'].update_one(
+        {collection_name:{"$exists":True}},
+        {"$push":{f"{collection_name}":"/".join(path)}}
+    ) # add the path into and array 
+    return jsonify({"message": f"Index '{'/'.join(path)}' created successfully"}), 201
+    # if index is not None or path == []:
+    #     if path == []: path.append("$value")
+    #     db['index'].update_one(
+    #         {collection_name:{"$exists":True}},
+    #         {"$push":{f"{collection_name}":"/".join(path)}}
+    #     ) # add the path into and array 
+    #     return jsonify({"message": f"Index '{'/'.join(path)}' created successfully"}), 201
+    # else:
+    #     return jsonify({"message": f"Failed to create the index"}), 400
 
 
 @post_bp.route('/.create_listener/<collection_name>', methods=['POST'])
@@ -100,6 +109,9 @@ def create_listener(collection_name):
                     }
                     if 'fullDocument' in change:
                         simplified_change['fullDocument'] = {k: v for k, v in change['fullDocument'].items() if k != '_id'}
+                    if 'updateDescription' in change:
+                        simplified_change['updateDescription'] = change['updateDescription']
+
                     print(f"Change detected: {change}")
                     # Emit the change to all connected clients
                     # socketio.emit('change_detected', change)
