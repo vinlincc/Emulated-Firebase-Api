@@ -110,8 +110,9 @@ def get_question_from_order(): #//get all questions
     headers = header_getter()
     res = requests.get(url6, headers=headers)
     question = list(json.loads(res.text).values())
+    question_id = list(json.loads(res.text).keys())
 
-    return question
+    return question_id, question
 
 
 

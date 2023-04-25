@@ -4,6 +4,28 @@
 
 {% block head %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/detail.css') }}">
+  <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+          socket.on('connect', () => {
+              console.log('Connected to Flask App 2');
+          });
+
+          socket.on('question content', (data) => {
+              console.log('Received event from Flask App 1:', data);
+              // Get the paragraph element by ID
+              const questionContentElement = document.getElementById('question-content');
+
+              // Update the content of the paragraph element
+              questionContentElement.textContent = data;
+          });
+
+          socket.on('disconnect', () => {
+              console.log('Disconnected from Flask App 2');
+          });
+      });
+  </script>
 {% endblock %}
 
 {% block body %}
@@ -16,7 +38,7 @@
         <span>time：{{ question.create_time }}</span>
       </p>
       <hr>
-      <p class="question-content">{{ question.content }}</p>
+      <p id="question-content" class="question-content">{{ question.content }}</p>
     </div>
     <div class="col"></div>
   </div>

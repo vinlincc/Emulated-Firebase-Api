@@ -10,10 +10,10 @@ qa_bp = Blueprint("qa", __name__, url_prefix="/")
 def index():
     #questions = Publish.objects().order_by("-create_time").all()
     #select from Order table order by create_time
-    questions =get_question_from_order()
+    questions_id, questions =get_question_from_order()
     print("----------------------question---------------")
     print(questions)
-    return render_template("index.html", questions=questions)
+    return render_template("index.html", questions=questions, questions_id=questions_id)
 
 
 @qa_bp.route("/publish", methods=["GET", "POST"])

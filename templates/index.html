@@ -4,6 +4,28 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+      const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+      socket.on('connect', () => {
+          console.log('Connected to Flask App 2');
+      });
+
+      socket.on('question content', (data) => {
+          console.log('Received event from Flask App 1:', data);
+          // Get the paragraph element by ID
+          const questionContentElement = document.getElementById(data["id"]);
+          console.log(data["id"])
+          // Update the content of the paragraph element
+          questionContentElement.textContent = data["content"];
+      });
+
+      socket.on('disconnect', () => {
+          console.log('Disconnected from Flask App 2');
+      });
+  });
+</script>
 {% endblock %}
 
 {% block body %}
@@ -12,13 +34,14 @@
             <div class="col-10">
                 <ul class="question-ul">
                   {% for question in questions %}
+                    {% set question_id = questions_id[loop.index0] %}
                     <li>
                         <div class="side-question">
                             <img class="side-question-avatar" src="{{ url_for('static', filename='images/avatar.jpg') }}" alt="">
                         </div>
                         <div class="question-main">
                             <div class="question-title"><a href="{{ url_for('qa.detail', id=question.id) }}">{{ question["1"]["title"] }}</a></div>
-                            <div class="question-content">{{ question["2"]["content"] }}</div>
+                            <div id="{{ question_id }}" class="question-content">{{ question["2"]["content"] }}</div>
                             <div class="question-detail">
                                 <span class="question-author">{{ question["0"]["author"] }}</span>
                                 <span class="question-time">{{ question["3"]["create_time"] }}</span>

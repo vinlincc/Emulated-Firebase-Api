@@ -1,10 +1,12 @@
 #!/bin/sh
-'''exec' "/Users/maxlou/Desktop/DSCI 551/project/new/dsci551-web/venv/bin/python" "$0" "$@"
+'''exec' "/Users/linchenchao/Documents/文稿 - MacBook Pro/DSCI551/dsci551web/dsci551/venv/bin/python" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
 import sys
+
 from email_validator.__main__ import main
+
 if __name__ == '__main__':
-    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
     sys.exit(main())

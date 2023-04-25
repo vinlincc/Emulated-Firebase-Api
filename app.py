@@ -5,9 +5,45 @@ from models import *
 from module.qa import qa_bp
 from module.authority import au_bp
 from functions import header_getter,collection_creator, password_getter
+from flask_socketio import SocketIO
+import socketio as sio
+import threading
+import eventlet
 import requests
 
+eventlet.monkey_patch()
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+
+@socketio.on('connect')
+def on_connect():
+    print('Client connected')
+
+@socketio.on('disconnect')
+def on_disconnect():
+    print('Client disconnected')
+
+def on_event_received(data):
+    print(f"Received event: {data}")
+    if data['operationType'] == "update":
+        print(data)
+        update = data['updateDescription']['updatedFields']
+        question = {"id":list(update.keys())[0].split('.')[0], "content":list(update.values())[0]}
+        socketio.emit('question content', question)
+
+def run_client_socketIO():
+    client_socketIO = sio.Client()
+
+    @client_socketIO.event
+    def connect():
+        print("Connected to Flask App 1")
+
+    @client_socketIO.on('change_detected')
+    def on_my_event(data):
+        on_event_received(data)
+
+    client_socketIO.connect('http://localhost:5000')
+    client_socketIO.wait()
 
 app.config.from_object(config)
 
@@ -36,7 +72,11 @@ def context():
 if __name__ == '__main__':
 
     #stage 1 with port 5000, stage 2 with port 5066
-    app.run(port = 5066)
+    # app.run(port = 5066)
+    client_socketIO_thread = threading.Thread(target=run_client_socketIO, daemon=True)
+    client_socketIO_thread.start()
+
+    socketio.run(app, port=5066, debug=True)
 
     #create 3 collections
     headers = header_getter()
