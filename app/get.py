@@ -248,7 +248,7 @@ def get(myPath):
     db = mongo.cx[user_database]
     path = myPath.split('/')
     path = check_path(path)
-    if path is None: return jsonify({"message": "invalid collection"}), 400
+    if path == []: return jsonify({"message": "invalid collection"}), 400
     if path[0] not in db.list_collection_names(): return jsonify({"message": "invalid collection"}), 400
     args_dict = request.args
     args_keys = args_dict.keys()

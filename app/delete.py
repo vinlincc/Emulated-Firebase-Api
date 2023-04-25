@@ -51,11 +51,13 @@ def delete_process(db, myPath):
     if path[0] not in db.list_collection_names():
         return jsonify({"message": "This table name is not found", "path":path}), 400
 
-    #case 3: Table is found, and delete the whole table
+    #case 3: Table is found, and delete the whole table + delete index table
     # e.g. curl -X DELETE "http://127.0.0.1:5000/Mydata"
     collection = db[path[0]]
+    index_table = db["index"]
     if len(path) == 1:
         collection.drop()
+        index_table.drop()
         return jsonify({"message": f"The table --{str(path[0])}-- is deleted successfully", "path": path}), 201
 
     #case 4: Table is found, and we want to delete element

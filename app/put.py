@@ -24,7 +24,7 @@ def input_data_transform(input_data):
 def check_path(path):
     remove_indices = []
     for i in range(len(path)):
-        if '.' in path[i]: return
+        if '.' in path[i]: return []
         if path[i] == '': remove_indices.append(i)
     return [field for i, field, in enumerate(path) if i not in remove_indices]
 
