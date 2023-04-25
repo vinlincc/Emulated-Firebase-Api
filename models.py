@@ -4,20 +4,20 @@ import mongoengine as me
 import time
 
 
-class User(me.Document):
+class User(me.Document):  #user info
     id = me.IntField(primary_key=True, default=time.time())
     user = me.StringField(required=True, unique=True)
     password = me.StringField(required=True)
     email = me.StringField(required=True, unique=True)
 
 
-class Email(me.Document):
+class Email(me.Document): #sign up
     id = me.IntField(primary_key=True, default=time.time())
     email = me.StringField(required=True, unique=True)
     code = me.StringField(required=True)
 
 
-class Publish(me.Document):
+class Publish(me.Document): #post
     id = me.IntField(primary_key=True, default=time.time_ns())
     title = me.StringField(required=True)
     content = me.StringField(required=True)

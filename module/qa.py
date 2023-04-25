@@ -1,13 +1,16 @@
 from flask import Blueprint, request, render_template, g, redirect
-from models import Publish, Answer
+from models import Publish
 from decorators import login_required
+from functions import question_saver,get_question,get_question_from_order
 
 qa_bp = Blueprint("qa", __name__, url_prefix="/")
 
 
 @qa_bp.route("/")
 def index():
-    questions = Publish.objects().order_by("-create_time").all()
+    #questions = Publish.objects().order_by("-create_time").all()
+    #select from Order table order by create_time
+    questions =get_question_from_order()
     return render_template("index.html", questions=questions)
 
 
@@ -19,9 +22,13 @@ def publish():
     else:
         title = request.form.get("title")
         content = request.form.get("content")
-        question = Publish(title=title, content=content, author=g.user.user)
-        print(question.to_json())
-        question.save()
+        #question = Publish(title=title, content=content, author=g.user.user)
+        author=g.user
+        question = question_saver(title,content, author)
+
+        print(question)
+        # print(question.to_json())
+        # question.save()
         return redirect("/")
 
 
@@ -47,5 +54,6 @@ def publish_answer():
 def search():
     criteria = request.args.get("searchContent")
     print(criteria)
-    questions = Publish.objects(title=criteria).order_by("-create_time").all()
+    # questions = Publish.objects(title=criteria).order_by("-create_time").all()
+    questions = get_question(criteria)
     return render_template("index.html", questions=questions)
