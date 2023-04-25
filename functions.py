@@ -71,7 +71,7 @@ def question_saver(title,content,author):
     item3 = {"content": content}
     item4 = {"create_time": create_time}
     data = {title: [[item1, item2,item3, item4]]}
-    json_data1 = json.dumps(data).replace(" ","")
+    json_data1 = json.dumps(data)
 
     #check if the title already exists
     url4 = "http://127.0.0.1:5000/Publish/" + title+ ".json"
@@ -82,7 +82,7 @@ def question_saver(title,content,author):
         lastNum = int(list(res)[-1])
         key = str(lastNum + 1)
         newDict = {key: data}
-        json_data2 = json.dumps(newDict).replace(" ","")
+        json_data2 = json.dumps(newDict)
         requests.patch(url4, json_data2, headers=headers)
     else:
         requests.patch(url3,json_data1,headers=headers)
@@ -90,7 +90,7 @@ def question_saver(title,content,author):
     #store the question in ordertable
     url5 = "http://127.0.0.1:5000/Order/" +".json"
     data = [item1, item2,item3, item4]
-    json_data3 = json.dumps(data).replace(" ","")
+    json_data3 = json.dumps(data)
     requests.post(url5,json_data3,headers=headers)
 
     return data
@@ -104,12 +104,13 @@ def get_question(title):
     return question
 
 def get_question_from_order(): #//get all questions
-    #url6 = "http://127.0.0.1:5000/Order.json?orderBy='3/create_time'&limitToFirst=1000"
-    url6 = "http://127.0.0.1:5000/Order.json?orderBy='3/create_time'"
+    url6 = "http://127.0.0.1:5000/Order.json?orderBy='3/create_time'&limitToFirst=1000"
+    #url6 = "http://127.0.0.1:5000/Order.json?orderBy='3/create_time'"
 
     headers = header_getter()
     res = requests.get(url6, headers=headers)
-    question = json.loads(res.text)
+    question = list(json.loads(res.text).values())
+
     return question
 
 

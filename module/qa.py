@@ -11,6 +11,8 @@ def index():
     #questions = Publish.objects().order_by("-create_time").all()
     #select from Order table order by create_time
     questions =get_question_from_order()
+    print("----------------------question---------------")
+    print(questions)
     return render_template("index.html", questions=questions)
 
 

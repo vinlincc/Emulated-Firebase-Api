@@ -17,11 +17,11 @@
                             <img class="side-question-avatar" src="{{ url_for('static', filename='images/avatar.jpg') }}" alt="">
                         </div>
                         <div class="question-main">
-                            <div class="question-title"><a href="{{ url_for('qa.detail', id=question.id) }}">{{ question.title }}</a></div>
-                            <div class="question-content">{{ question.content }}</div>
+                            <div class="question-title"><a href="{{ url_for('qa.detail', id=question.id) }}">{{ question["1"]["title"] }}</a></div>
+                            <div class="question-content">{{ question["2"]["content"] }}</div>
                             <div class="question-detail">
-                                <span class="question-author">{{ question.author }}</span>
-                                <span class="question-time">{{ question.create_time }}</span>
+                                <span class="question-author">{{ question["0"]["author"] }}</span>
+                                <span class="question-time">{{ question["3"]["create_time"] }}</span>
                             </div>
                         </div>
                     </li>
