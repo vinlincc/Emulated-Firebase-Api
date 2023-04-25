@@ -54,7 +54,8 @@ def process_put(db, myPath, input_data):
     # --------------------------------------------------------------------------------
     if len(path) == 1:
         if not isinstance(input_data, dict): return "element under root must be a dict"
-        collection.drop()
+        # collection.drop()
+        collection.delete_many({})
         documents = [{k:v} for k, v in input_data.items()]
         collection.insert_many(documents)
         return jsonify({"message": "Resource created successfully", "data": input_data}), 201
