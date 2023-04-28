@@ -40,14 +40,17 @@ def register():
     else:
         email = request.form.get("email")
         user_password = password_getter(email)
-        if user_password == {}:
+        if user_password =='{}\n':
+            print('wwwwwwwwwwwwwwww')
             password = request.form.get("password")
             password_confirm = request.form.get("password_confirm")
             if password_confirm == password:
 
                 # user = request.form.get("user")
                 # user = User(user=user,password=password,email=email)
+                print("ssssssssssssssssssssss")
                 code = request.form.get("code")
+                print('ddddddddddddddddddddd')
                 real_code = codeFromDB(email)
 
                 #email_in_db = Email.objects(email=email,code=code).first()

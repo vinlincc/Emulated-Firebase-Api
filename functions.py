@@ -24,6 +24,13 @@ def password_getter(email):
         headers = header_getter()
         res = requests.get(url1, headers = headers)
         user_password = res.text
+        print("user_password:" + user_password + "...")
+        print(user_password)
+        print(type(user_password))
+        print(user_password == "{}\n")
+        print(user_password == '{}')
+        print(user_password == {})
+        print(user_password == None)
         return user_password
     else:
         return
@@ -70,7 +77,20 @@ def question_saver(title,content,author):
     item2 = {"title": title}
     item3 = {"content": content}
     item4 = {"create_time": create_time}
-    data = {title: [[item1, item2,item3, item4]]}
+
+    #store the question in order table
+    url5 = "http://127.0.0.1:5000/Order/" +".json"
+    data = [item1, item2,item3, item4]
+    json_data3 = json.dumps(data)
+    r= requests.post(url5,json_data3,headers=headers)
+    res = json.loads(r.text)
+    question_id = res['name']
+    print("-======== The title is ")
+    print(title)
+
+    #store in publish table
+    item5 = {"question_id": question_id}
+    data = {title: [[item1, item2,item3, item4, item5]]}
     json_data1 = json.dumps(data)
 
     #check if the title already exists
@@ -87,12 +107,6 @@ def question_saver(title,content,author):
     else:
         requests.patch(url3,json_data1,headers=headers)
 
-    #store the question in ordertable
-    url5 = "http://127.0.0.1:5000/Order/" +".json"
-    data = [item1, item2,item3, item4]
-    json_data3 = json.dumps(data)
-    requests.post(url5,json_data3,headers=headers)
-
     return data
 
 def get_question(title):
@@ -100,18 +114,43 @@ def get_question(title):
     url3 = "http://127.0.0.1:5000/Publish/" + title + ".json"
     headers = header_getter()
     res = requests.get(url3, headers = headers)
-    question = json.loads(res.text)
-    return question
+    result = json.loads(res.text)
+    print("result is ----------")
+    print(result)
+   
+    
+    question = list(result.values())
+    question_id = [ question[i]['4']['question_id'] for i in range(len(question)) ]
+    
+    print("----------------question------------")
+    print(question)
+    
+    
+    print(question_id)
+    return question,question_id
 
 def get_question_from_order(): #//get all questions
     url6 = "http://127.0.0.1:5000/Order.json?orderBy='3/create_time'&limitToFirst=1000"
     #url6 = "http://127.0.0.1:5000/Order.json?orderBy='3/create_time'"
 
     headers = header_getter()
-    res = requests.get(url6, headers=headers)
-    question = list(json.loads(res.text).values())
-    question_id = list(json.loads(res.text).keys())
-
+    r = requests.get(url6, headers=headers)
+    print("------------r is ")
+    print(r)
+    if r.status_code !=500:
+        result = json.loads(r.text)
+        question = list(result.values())
+        # we want to get question
+        question = sorted(question, key=lambda x: x['3']['create_time'],reverse=True)
+        
+        # we want to get question_id
+        mylist = [{k:v} for k, v in result.items()]
+        new_list = sorted(mylist, key =lambda x: list(x.values())[0]['3']['create_time'], reverse=True)
+        question_id = [list(element.keys())[0] for element in new_list]
+    else:
+        question = []
+        question_id = []
+    
     return question_id, question
 
 

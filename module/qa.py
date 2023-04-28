@@ -55,7 +55,7 @@ def publish_answer():
 @qa_bp.route("/search")
 def search():
     criteria = request.args.get("searchContent")
-    print(criteria)
+    print("criteria is " + criteria)
     # questions = Publish.objects(title=criteria).order_by("-create_time").all()
-    questions = get_question(criteria)
-    return render_template("index.html", questions=questions)
+    questions,questions_id = get_question(criteria)
+    return render_template("index.html", questions=questions, questions_id=questions_id)

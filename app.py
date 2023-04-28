@@ -60,6 +60,8 @@ def before():
     if user_email:
        # user = User.objects(email=user_email).first()
         setattr(g, "user", user_email)
+        print("g.user look up ---------------------------")
+        print(g.user)
     else:
         setattr(g, "user", None)
 
@@ -76,8 +78,6 @@ if __name__ == '__main__':
     client_socketIO_thread = threading.Thread(target=run_client_socketIO, daemon=True)
     client_socketIO_thread.start()
 
-    socketio.run(app, port=5066, debug=True)
-
     #create 3 collections
     headers = header_getter()
     collection_creator("User",headers)
@@ -89,6 +89,13 @@ if __name__ == '__main__':
     indexUrl = "http://127.0.0.1:5000/" + ".create_index/" + "Order/3/" + "create_time"
     requests.post(indexUrl, headers=headers)
 
+    #create listener
+    postUrl = "http://127.0.0.1:5000/.create_listener/Order"
+    requests.post(postUrl, headers=headers)
+
+    socketio.run(app, port=5066, debug=True)
+
+    
 
 
 
