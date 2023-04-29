@@ -3,11 +3,14 @@
 ## Setup
 
 **1. Python Virtual Environment**
+
 Python is assumed to be installed before this procedure.
 
 Open your terminal, input command:
 
+```bash
 python -m venv venv
+```
 And run command:
 
 source venv/bin/activate
