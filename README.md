@@ -87,3 +87,41 @@ rs.add("localhost:27019")
 ```
 
 You can check the health status for each port with `rs.status()`.
+
+## Start the Emulated Firebase (locally)
+Go to the project directory, and activate the virtual environment.
+```bash
+source venv/bin/activate
+```
+Start the flask app:
+```bash
+python main.py
+```
+Now the flask app should be running on http://127.0.0.1:5000
+
+## User Registration, Create Collection, Index and Listener (POST methods)
+To enable users to manage their data separately and securely, we have user registration and user login api.
+```bash
+curl -X POST 'localhost:5000/.register' -d '{"username":"dsci551","password":"123"}' 
+```
+It will return {"result":"User created"}
+```bash
+curl -X POST 'localhost:5000/.login' -d '{"username":"dsci551","password":"123"}' 
+```
+It will return {"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY4MjczMDI3NSwianRpIjoiNzNhN2E2NmYtMDk2ZC00NzhlLTllOTQtOGIxMDk1NDNmNGIyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImRzY2k1NTEiLCJuYmYiOjE2ODI3MzAyNzV9.PoatX68cG3WAF5DoT2JMnmwxTGykXOyepUUPiBLqxHo"}
+You should always inlcude a header -H "Authorization: Bearer {token}" for any operations other than register and login.
+Take creating a collection as an example:
+```bash
+curl -X POST -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY4MjczMDI3NSwianRpIjoiNzNhN2E2NmYtMDk2ZC00NzhlLTllOTQtOGIxMDk1NDNmNGIyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImRzY2k1NTEiLCJuYmYiOjE2ODI3MzAyNzV9.PoatX68cG3WAF5DoT2JMnmwxTGykXOyepUUPiBLqxHo" http://localhost:5000/.create_collection/dsci551
+```
+For following curl command I will use -H "Authorization: Bearer {token}" to save space.
+For creating index:
+```bash
+curl -X POST -h "Authorization: Bearer {token}" http://localhost:5000/.create_index/dsci551?byValue=1
+```
+For creating listener:
+```bash
+curl -X POST -h "Authorization: Bearer {token}" http://localhost:5000/.create_listener/dsci551
+```
+
+## CRUD
