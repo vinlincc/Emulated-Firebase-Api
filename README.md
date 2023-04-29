@@ -201,5 +201,7 @@ Thus, the listener can be created only on the collection level, there is no way 
 ## How to Setup the Socket to Receive Messages From Listeners
 The client uses this emulated Firebase should use socket client, like the one provided by socketio package in python. Make the socket client connects to 'http://localhost:5000'. 
 
+## Rescriction
+Like Firebase, no dot '.' is allowed in any key. Besides, please exclude unnecessary space in your input json object.
 
 
