@@ -38,3 +38,7 @@ open your browser and open the following url:
 ```bash
 http://localhost:5000
 ```
+
+**4. About synchronize function**
+What you write in the terminal will immediately show up in interface, which is our synchronize function.
+For example, you can use terminal or Mongodb Compass to add a new post and this post will immediately appear on the web without refreshing the browser.
