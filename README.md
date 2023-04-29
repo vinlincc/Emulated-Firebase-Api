@@ -1,6 +1,6 @@
 # WEB APP: DSCI551 Forum
 
-Setup
+# Setup
 
 1. Python Virtual Environment
 Python is assumed to be installed before this procedure.
