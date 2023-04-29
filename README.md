@@ -2,11 +2,9 @@
 
 ## Setup
 
-## 1. Python Virtual Environment
+** 1. Python Virtual Environment **
 Python is assumed to be installed before this procedure.
-
 Open your terminal, input command:
-
 python -m venv venv
 And run command:
 
