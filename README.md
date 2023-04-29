@@ -20,11 +20,18 @@ Run pip install related packages:
 ```bash
 pip install -r requirements.txt
 ```
-2. Secret Key
-A secret key is necessary in this project. Input command:
 
-export JWT_SECRET_KEY="6cfb8684b95028909c82dcea7244cb04f009f0a07dde210f71e00b97f663a144"
-Or use your own secret key.
+**2. Start up the server**
+change your working directory into 1
+```bash
+cd 1
+python main.py
+```
+change your working directory into 2
+```bash
+cd ../2
+python app.py
+```
 
 3. MongoDB
 MongoDB is assumed to be installed, and MongoDB replica set should be properly set up. In the following instructions, we set up a MongoDB replica set locally.
