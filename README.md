@@ -9,11 +9,6 @@ Part 1 is assumed to run successfully in your computer before running part 2 as 
 Open your terminal, input command:
 
 ```bash
-python -m venv venv
-```
-And run command:
-
-```bash
 source venv/bin/activate
 ```
 Run pip install related packages:
