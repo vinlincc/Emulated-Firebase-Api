@@ -4,7 +4,7 @@
 
 **1. Python Virtual Environment**
 
-Python is assumed to be installed before this procedure.
+Python is assumed to be installed before this procedure. Besides, all the command is run on the MacOS, if your operation system is Windows, pleaase download git bash to run the following command!
 
 Open your terminal, input command:
 
