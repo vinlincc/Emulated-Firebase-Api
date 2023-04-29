@@ -25,12 +25,12 @@ pip install -r requirements.txt
 change your working directory into 1
 ```bash
 cd 1
-python main.py
+python main.py  #CRUD server starts up
 ```
 change your working directory into 2
 ```bash
 cd ../2
-python app.py
+python app.py  #WEB APP server starts up
 ```
 
 3. MongoDB
