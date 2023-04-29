@@ -13,10 +13,13 @@ python -m venv venv
 ```
 And run command:
 
+```bash
 source venv/bin/activate
+```
 Run pip install related packages:
-
+```bash
 pip install -r requirements.txt
+```
 2. Secret Key
 A secret key is necessary in this project. Input command:
 
