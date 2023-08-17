@@ -1,4 +1,4 @@
-# dsci551
+# Emulated Firebase API
 
 ## Setup
 
